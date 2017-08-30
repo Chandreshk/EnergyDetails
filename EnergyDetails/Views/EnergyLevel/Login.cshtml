@@ -1,0 +1,92 @@
+﻿
+@{
+    <title>Proteus Energy Analytics</title>
+    <link rel="icon" href="~/Content/image/proteus.png" type="image/png" />
+}
+<html lang="en">
+<head id="Head1">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="~/Content/js/jquery-v1.6.1.js" type="text/javascript"></script>
+    <script src="~/Content/js/jquery-1.12.4.js"></script>
+    <script src="~/Content/js/jquery-ui.js"></script>
+    <link href="~/Content/css/style_new.css" rel="stylesheet" />
+    <link href="~/Content/css/bootstrap.css" rel="stylesheet" />
+    <title>
+    </title>
+    <script type="text/javascript">
+        $(document).keypress(function (e) {
+            if (e.which == 13) {
+                GetLoginValidated();
+            }
+        });
+        function GetLoginValidated() {
+            var UserName = $("#txt_login_id").val();
+            var Password = $("#txt_password").val();
+            var Urls = "../EnergyLevel/GetLoginDetails";
+            //var Urls = window.location.pathname + "/EnergyLevel/GetLoginDetails";
+            $("#divLoadingU").show();
+            var LoginDetails = JSON.stringify({ 'UserName': UserName, 'Password': Password });
+            $.ajax({
+                url: Urls,
+                type: "POST",
+                contentType: "application/json; charset=utf-8",
+                dataType: "json",
+                data: LoginDetails, // pass that text to the server as a correct JSON String
+                success: function (resp) {
+                    //alert(resp.result);
+
+                    if (resp.result == "Success" && UserName != "" && Password != "") {
+                        //var url = window.location.pathname + "/EnergyLevel/GoogleMap";
+                         var url = "../EnergyLevel/GoogleMap";
+                        window.location.href = url;
+                    }
+                    else {
+                        $("#spnerror").html("User name and password incorrect");
+                        $("#divLoadingU").hide();
+                    }
+                    if (UserName == "" || Password == "") {
+                        $("#spnerror").html("Enter user name and password");
+                        $("#divLoadingU").hide();
+                    }
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    //alert("Failed to retrieve city. Please try again.");
+                }
+            });
+        }
+        
+    </script>
+    <style>
+    </style>
+</head>
+<body>
+    <div class="login-box" >
+        <div style="margin-left:28%">
+            @*<img src="~/Content/image/LoginImages/EnergyAnalytics1.png" />*@
+            <img src="~/Content/image/proteus.png" style="width:200px;height:93px;margin-top:29px;" />
+        </div>
+        <h2 style="font-size: 20px;">LOGIN </h2>
+            <div class="email-div">
+                <label for="Email"><strong class="email-label">Username</strong></label>
+                <input spellcheck="false" name="Usaername" id="txt_login_id" value="" type="text">
+            </div>
+            <div class="passwd-div">
+                <label for="Passwd"><strong class="passwd-label">Password</strong></label>
+                <input name="Passwd" id="txt_password" type="password">
+            </div>
+            <div class="passwd-div">
+               <span id="spnerror" style="color:red"></span>
+                </div>
+        <div style="float:right">
+            <input class="button button-submit" name="signIn" id="signIn" onclick="GetLoginValidated()" value="Sign in" type="button">
+        </div>
+<div class="inChk">
+            <a href="#" style="display: none;">Forgot Password</a>
+            &nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            <span class="inputChk" style="display: none;"><input id="chkRememberMe" type="checkbox" name="chkRememberMe" style="display: none;">Remember me</span>
+</div>
+</div>
+</body>
+</html>

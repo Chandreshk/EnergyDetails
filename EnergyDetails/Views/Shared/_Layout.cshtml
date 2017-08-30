@@ -1,0 +1,73 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title>@ViewBag.ProteusEnergyAnalytics</title>
+    <link rel="icon" href="~/Content/image/proteus.png" type="image/png" />
+    <link href="~/Content/css/common.css" rel="stylesheet" />
+
+</head>
+<body>
+    <div>
+        <table class="header">
+            <tr>
+                <td></td>
+                <td>
+                    <span class="btn" id="idTitle">
+                        Proteus Energy Analytics
+                    </span>
+                </td>
+                <td>
+                    <div class="mainAccount">
+                        <div class="clearfix">
+                            <div>
+                                <span>
+                                    @ViewBag.WelcomeUser : @ViewBag.UserName
+                                </span>
+
+                            </div>
+
+                            <div>
+                                <a class="logout" href="" onclick='RedirectedUrlhome()'><img src="~/Content/image/logoutpng.png" />&nbsp;&nbsp;@ViewBag.HomePage</a>
+                            </div>
+                        </div>
+
+                    </div>
+                </td>
+            </tr>
+
+
+        </table>
+
+        
+        <div id="ExpotPdfTest">
+            @RenderBody()
+           
+            @RenderSection("scripts", required: false)
+           
+        </div>
+        @*<div style="float:right"><img src="~/Content/image/proteus.png" /></div>*@
+        <footer>
+        </footer>
+    </div>
+
+    <div id="divLoadingS" >
+        <p class="p">
+            <img src="~/Content/image/sending1.gif" />
+        </p>
+    </div>
+
+    <div id="divLoadingD">
+        <p class="p">
+            Data Sync... <img src="~/Content/image/loader.gif" />
+        </p>
+    </div>
+
+    <div id="divLoadingU">
+        <p class="p">
+            <img src="~/Content/image/loading page.gif" />
+        </p>
+    </div>
+</body>
+</html>
+

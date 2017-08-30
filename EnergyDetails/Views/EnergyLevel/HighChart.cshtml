@@ -1,0 +1,1306 @@
+﻿@{
+    ViewBag.Title = "Energy Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<script src="~/Content/js/jquery-v1.6.1.js" type="text/javascript"></script>
+<script src="~/Content/js/jquery-1.12.4.js"></script>
+<link href="~/Content/calendercss/ui-lightness/jquery-ui-1.8.19.custom.css" rel="stylesheet" />
+<script src="~/Content/calenderjs/jquery-1.7.2.min.js"></script>
+<script src="~/Content/calenderjs/jquery-ui-1.8.19.custom.min.js"></script>
+<script src="~/Content/js/jquery-ui.js"></script>
+<script src="~/Content/js/highcharts.js"></script>
+<script src="~/Content/js/highcharts-more.js"></script>
+<script src="~/Content/js/data.js"></script>
+<script src="~/Content/js/exporting.js"></script>
+<script src="~/Content/js/fusioncharts.js"></script>
+<script src="~/Content/js/fusioncharts.widgets.js"></script>
+<script src="~/Content/js/fusioncharts.theme.fint.js"></script>
+
+<script src="~/Content/js/translate.js"></script>
+<link href="~/Content/css/common.css" rel="stylesheet" />
+
+<script src="~/Content/js/app.js"></script>
+<script src="~/Content/js/autocomplete.js"></script>
+<link href="~/Content/css/weather.css" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/1.3.2/jspdf.min.js"></script>
+<script>
+        function clock() {
+            var monthNames = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+            var now = new Date();
+            var outStr = now.getHours() + ':' + now.getMinutes() + ':' + now.getSeconds();
+            var outStr1 = now.getDate()+ '  ' + monthNames[now.getMonth()] + '  ' + now.getFullYear();
+            document.getElementById('clockDiv').innerHTML = outStr;
+            document.getElementById('clockDiv1').innerHTML = outStr1;
+            setTimeout('clock()', 1000);
+        }
+</script>
+
+
+<table class="container">
+    <tr>
+        <td>
+
+            <div>
+                <img src="@ViewBag.LogoImage" style="max-width:263px;height: 150px;margin-top:8%;" />
+                @*<img src="~/Content/image/infozerotech-logof16e.jpg" style="max-width:263px;height: 250px;margin-top:8%;" />*@
+            </div>
+            <div>
+
+                <table id="sitebuilding" style="width: 273px;"></table>
+                <table style="width: 273px;">
+                    <tr>
+                        <td>
+                            <input type="button" id="EnergyYearlyIntensity" class="btn btn-orng1 mt15 changecss" value="@ViewBag.MonthlyEnergyIntensity" onclick="SearchMonthlyEngIntensity(this)" name="monthlyIntensity" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="button" id="EnergyYearly" class="btn btn-orng1 mt15 changecss" value="@ViewBag.YearlyEnergyConsumption" onclick="SearchYearlyEngConsuption(this)" name="YearlyEnergy" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="button" id="EnergyYearlyExpenses" class="btn btn-orng1 mt15 changecss" value="@ViewBag.YearlyEnergyExpenses" onclick="SearchYearlyEngCost(this)" name="YearlyCost" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="button" id="EnergyYearlyIntesi" class="btn btn-orng1 mt15 changecss" value="@ViewBag.YearlyEnergyIntensity" onclick="SearchYearlyEngIntensity(this)" name="YearlyIntensity" />
+                        </td>
+                    </tr>
+                </table>
+                <table id="tblWeather" style="width: 273px;"></table>
+                <br>
+                <table style="width: 273px; border:1px solid black;">
+
+                    <tr>
+                        <td>
+                            <span id="spnsucessmesg" style="text-align: center;color:black;  word-break: break-word;">
+
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+
+                        <td>
+                            <input type="text" id="txtemail" class="txtField" placeholder="@ViewBag.EnterEmail " title="Email" value="" />
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type="button" id="energyDatax" class="btn btn-orng2 mt15 changecss" value="@ViewBag.SendReport" onclick="ValidateEmail()" name="YearlyIntensity" />
+                        </td>
+
+                    </tr>
+                    <tr>
+                        <td>
+                            <span id="spnsucessmesgShrink" style="text-align: center;color:black;">
+
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <input type='button' id='DataShrink' class='btn btn-orng2 mt15 changecss' value="@ViewBag.DailyDataShrink" onclick='DataShrink(this)' name='' />
+                            <br><br>
+                        </td>
+                    </tr>
+
+                    <tr>
+                        <td>
+                            <input type='button' id='setting' class='btn btn-orng1 mt15 changecss' value="@ViewBag.Setting" name='' />
+                            <br>
+                            <br>
+                        </td>
+                    </tr>
+
+
+
+                </table>
+                <table id="tblFileUpload" style="display:none; width: 273px;">
+                    <tr>
+                        <td>
+                            <span id="spanmssg" style="text-align: center;color:black; word-break: break-word;">
+
+                            </span>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            @Html.AntiForgeryToken()
+                            <input type="hidden" name="pageId" value="" id="pageId" />
+                            @*@Html.TextBoxFor(model => model.files, "", new { @type = "file", @multiple = "multiple" })*@
+                            <input type="file" name="file" class='btn btn-orng2 mt15 changecss' multiple id="FileUpload1" style="width: 89%;" />
+
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+
+                            <input type="submit" class='btn btn-orng2 mt15 changecss' value="@ViewBag.ImportData" id="btnUpload" />
+                            <br><br>
+                            <br><br>
+                        </td>
+                    </tr>
+                </table>
+                <br>
+
+            </div>
+        </td>
+        <td>
+            <div id="ExportPdf" style="overflow-x:auto;width:81%">
+                <div style="margin-left:0%;margin-top:-1%; ">
+                    <div id="container"></div>
+                </div>
+                <div id="totalbuild">
+
+
+                    <fieldset style="border:1px solid #0078CC; class=" responsive-fieldset"">
+                        <legend style="color:#031439"><b style="font-size: 23px;">@ViewBag.Summary</b></legend>
+                        <div id="tblSpedometer" style="text-align:-webkit-center;overflow-x:auto;max-width:100%;min-width:40%;align:center">
+                        </div>
+                    </fieldset>
+                </div>
+                <br />
+                <br />
+                <div style="float:right"><img src="@ViewBag.LogoImagePath" /></div>
+            </div>
+            <div style="display:none" id="divSetting">
+                <table id="calender" style="width:100%;height:100%">
+                    <tr><td><h3>@ViewBag.DailyEnergyConsumption</h3></td></tr>
+                    <tr>
+
+                        <td>
+                            <label for="male">@ViewBag.PleaseSelectMaximum30Days</label><br><br>
+                            @ViewBag.From:<input type="text" name="startdate" id="FromDateDaily" onchange="FromdatefilltoDate()" value="">
+                        </td>
+                        <td>
+                            <br><br>
+                            @ViewBag.To:<input type="text" name="enddate" id="toDateDaily" value="">
+                        </td>
+                    </tr>
+                    <tr><td><h3>@ViewBag.MonthlyEnergyConsumption</h3></td></tr>
+                    <tr>
+                        <td>
+                            <label for="male">@ViewBag.PleaseSelectMaximum12Month</label><br><br>
+                            @ViewBag.From:<input type="text" name="startdate" id="FromDateMonthly" onchange="FromdatefilltoMonth()" value="">
+                        </td>
+                        <td>
+                            <br><br>
+                            @ViewBag.To:<input type="text" name="enddate" id="toDateMonthly" value="">
+                        </td>
+                    </tr>
+                    <tr><td><h3>@ViewBag.YearlyEnergyConsumption</h3></td></tr>
+                    <tr>
+                        <td>@ViewBag.From:<input type="text" name="startdate" id="FromDateYearly" onchange="FromdatefilltoYearly()" value=""></td>
+                        <td>@ViewBag.To:<input type="text" name="enddate" id="toDateYearly" value=""></td>
+                    </tr>
+                    <tr>
+                        <td></td>
+
+                        <td>
+                            <span id="Settingspnsucessmesg" style="width: 88px;margin-left: -122px;text-align: center;color:black;  word-break: break-word;">
+
+                            </span>
+                        </td>
+                    </tr>
+                    <tr><td></td><td><input style="width: 88px;margin-left: -122px;" type='button' id='save' onclick="SaveUpdateSetting()" class='btn btn-orng1 mt15 changecss' value="@ViewBag.Save" name='' /></td></tr>
+
+                </table>
+            </div>
+<input type="hidden" id="hdndaily" value="" />
+<input type="hidden" id="hdnlocatiname" value="" />
+<input type="hidden" id="hdnLocationId" value="0" />
+<input type="hidden" id="hdnfacilityname" value="@ViewBag.FacilityName" />
+<input type="hidden" id="hdnsitename" value="@ViewBag.SiteName" />
+<input type="hidden" id="hdnBuildinName" value="" />
+<input type="hidden" id="hdnPloatedLine" value="0" />
+<input type="hidden" id="TypeAssetBuild" value="0" />
+<span id="spanbuildid"></span>
+        </td>
+    </tr>
+</table>
+<style>
+    #container {
+        height: 200%;
+        width: 100% !important;
+        position: relative;
+        overflow-x: auto;
+    }
+
+    #tblSpedometer {
+        height: 100%;
+        width: 100%;
+        position: relative;
+    }
+</style>
+
+
+<script type="text/javascript">
+    function RedirectedUrlhome() {
+        event.preventDefault();
+
+                var url = '@Url.Action("Login", "")';
+                window.location.href = url;
+    }
+    function RedirectedUrlsetting() {
+        event.preventDefault();
+
+        var url = '@Url.Action("Setting", "")';
+        window.location.href = url;
+    }
+    $(function () {
+        $("#FromDateDaily").datepicker();
+        $("#toDateDaily").datepicker();
+        $("#FromDateMonthly").datepicker();
+        $("#toDateMonthly").datepicker();
+        $("#FromDateYearly").datepicker();
+        $("#toDateYearly").datepicker();
+    });
+
+</script>
+
+<script type="text/javascript">
+    $(document).ready(function () {
+       // $("#calender").hide();
+        $("#setting").click(function () {
+            $("#divSetting").show();
+            $("#ExportPdf").hide();
+        });
+
+
+    });
+    $(document).ready(function(){
+        $('#btnUpload').click(function () {
+            if (window.FormData !== undefined) {
+                var fileUpload = $("#FileUpload1").get(0);
+                var BuildingID = $("#pageId").val();
+                var files = fileUpload.files;
+                var fileData = new FormData();
+                for (var i = 0; i < files.length; i++) {
+                    fileData.append(files[i].name, files[i]);
+                }
+                $("#divLoadingU").show();
+                //var LanguageConvert = JSON.stringify({ 'textvalue': value, 'Languageto': Languageto });
+                fileData.append('BuildingID', BuildingID);
+                $.ajax({
+                    url: '../EnergyLevel/UploadFiles',
+                    type: "POST",
+                    contentType: false, // Not to set any content header
+                    processData: false, // Not to process data
+                    // data: fileData, BuildingID,
+                    data:fileData,
+                    success: function (result) {
+                        // alert(result);
+                        $("#FileUpload1").val("");
+                        $("#spanmssg").html(result);
+                        $("#divLoadingU").hide();
+                    },
+                    error: function (err) {
+                        // alert(err.statusText);
+                        $("#FileUpload1").val("");
+                        $("#spanmssg").html(err.statusText);
+                        $("#divLoadingU").hide();
+                    }
+                });
+            } else {
+                $("#FileUpload1").val("");
+                $("#spanmssg").html("FormData is not supported.");
+                $("#divLoadingU").hide();
+            }
+        });
+    });
+    function FromdatefilltoDate()
+    {
+      
+        var FromDateDaily = $("#FromDateDaily").val();
+        var date = new Date(FromDateDaily);
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();
+        var edate = new Date(y, m, d + 30);
+        //  alert(edate);
+        var FomatetoDate = (edate.getMonth() + 1) + '/' + edate.getDate() + '/' + edate.getFullYear();
+        $("#toDateDaily").val(FomatetoDate);
+    }
+    function FromdatefilltoMonth() {
+        var FromDateDaily = $("#FromDateMonthly").val();
+        var date = new Date(FromDateDaily);
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();
+        var edate = new Date(y, m, d + 360);
+        //  alert(edate);
+        var FomatetoDate = (edate.getMonth() + 1) + '/' + edate.getDate() + '/' + edate.getFullYear();
+        $("#toDateMonthly").val(FomatetoDate);
+    }
+    function FromdatefilltoYearly() {
+        var FromDateDaily = $("#FromDateYearly").val();
+        var date = new Date(FromDateDaily);
+        var d = date.getDate();
+        var m = date.getMonth();
+        var y = date.getFullYear();
+        var edate = new Date(y, m, d + 30);
+        //  alert(edate);
+        var FomatetoDate = (edate.getMonth() + 1) + '/' + edate.getDate() + '/' + edate.getFullYear();
+        $("#toDateYearly").val(FomatetoDate);
+    }
+    function SaveUpdateSetting() {
+        var FromDateDaily = $("#FromDateDaily").val();
+
+     //   var date = new Date(FromDateDaily);
+     //   var d = date.getDate();
+     //   var m = date.getMonth();
+     //   var y = date.getFullYear();
+     //   var edate = new Date(y, m, d + 30);
+     // //  alert(edate);
+     //var FomatetoDate=(edate.getMonth() + 1) + '/' + edate.getDate() + '/' + edate.getFullYear();
+
+     //$("#toDateDaily").val(FomatetoDate);
+
+        //var depart = $.datepicker.parseDate('mm/dd/yy', $('#arrivalDate').val());
+       // alert(parseDate('mm/dd/yy',edate));
+        //alert(DaysLaterMonth);
+        if ($("#FromDateDaily").val() > $("#toDateDaily").val()) {
+            $("#Settingspnsucessmesg").html(("@ViewBag.FromDateshoulbelessthanToDate"));
+            return false;
+        }
+        if ($("#FromDateMonthly").val() > $("#toDateMonthly").val()) {
+            $("#Settingspnsucessmesg").html(("@ViewBag.FromDateshoulbelessthanToDate"));
+            return false;
+        }
+        if ($("#FromDateYearly").val() > $("#toDateYearly").val()) {
+            $("#Settingspnsucessmesg").html(("@ViewBag.FromDateshoulbelessthanToDate"));
+            return false;
+        }
+      
+        var ReportTypeDaily = 'Daily';
+        var FromDateDaily = $("#FromDateDaily").val();
+        var toDateDaily = $("#toDateDaily").val();
+        var ReportTypeMonth = 'Month';
+        var FromDateMonthly = $("#FromDateMonthly").val();
+        var toDateMonthly = $("#toDateMonthly").val();
+        var ReportTypeYearly = 'Yearly';
+        var FromDateYearly = $("#FromDateYearly").val();
+        var toDateYearly = $("#toDateYearly").val();
+
+        var Details = JSON.stringify({
+            'ReportTypeDaily': ReportTypeDaily, 'FromDateDaily': FromDateDaily, 'toDateDaily': toDateDaily
+            , 'ReportTypeMonth': ReportTypeMonth, 'FromDateMonthly': FromDateMonthly, 'toDateMonthly': toDateMonthly
+            , 'ReportTypeYearly': ReportTypeYearly, 'FromDateYearly': FromDateYearly, 'toDateYearly': toDateYearly
+        });
+        $.ajax({
+            url: "../EnergyLevel/SaveUpdateReportSetting",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: Details, // pass that text to the server as a correct JSON String
+            success: function (Status) {
+                if (Status == "Sucesses") {
+                    //$("#spnsucessmesg").html(("" + FileName + " report sent to " + EmailId + ""));
+                    $("#Settingspnsucessmesg").html(("@ViewBag.SettingUpdateSuccessfully"));
+                    //$("#txtemail").val();
+                }
+                else {
+                    $("#Settingspnsucessmesg").html(("@ViewBag.SorryServerError"));
+                }
+            }
+        });
+    }
+    function DataShrink(value) {
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+        $("#divLoadingD").show();
+        $.ajax({
+            url: "../EnergyLevel/DailyDataShrink",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: "", // pass that text to the server as a correct JSON String
+            success: function (data) {
+                $("#spnsucessmesgShrink").html("@ViewBag.Datashrinksuccessful");
+                $("#divLoadingD").hide();
+            },
+            error: function (xhr, ajaxOptions, thrownError) {
+                $("#spnsucessmesgShrink").html("");
+            }
+        });
+    }
+    function TranslateLanguage(value, Languageto, textId) {
+        var LanguageConvert = JSON.stringify({ 'textvalue': value, 'Languageto': Languageto });
+        $.ajax({
+            url: "../EnergyLevel/TranslateLanguage",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: LanguageConvert, // pass that text to the server as a correct JSON String
+            success: function (Status) {
+                if (textId == "idTitle") {
+                    $("#" + textId).html(Status);
+                }
+                else {
+                    $("#" + textId).val(Status);
+                }
+                //alert(Status);
+            }
+        });
+    }
+
+    var FlagBuild = false;
+    var FlagWether = false;
+    $(document).ready(function () {
+        var BuilDID = getParameterByName('LocationID');
+        SiteBuildingDetails();
+        // loadTranslator();
+    });
+    function IsValidEmail(email) {
+        //var expr = /^([\w-\.]+)@@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([\w-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$/;
+        //return expr.test(email);
+       // var regExp = /(^[a-z]([a-z_\.]*)@@([a-z_\.]*)([.][a-z]{3})$)|(^[a-z]([a-z_\.]*)@@([a-z_\.]*)(\.[a-z]{3})(\.[a-z]{2})*$)/i;
+       var regExp = /^([a-zA-Z0-9_\.\-])+\@@(([a-zA-Z0-9\-])+\.)+([a-zA-Z0-9]{2,4})+$/;
+        return regExp.test(email);
+    };
+    function ValidateEmail() {
+        var FlageValidate = false;
+        var emails = document.getElementById("txtemail").value;
+        var emailArray = emails.split(",");
+        $("#divLoadingS").show();
+        if (emailArray[1] == undefined) {
+            emailArray = emails.split(";");
+        }
+        else {
+            emailArray = emails.split(",");
+        }
+
+        for (i = 0; i <= (emailArray.length - 1) ; i++) {
+            if (IsValidEmail(emailArray[i])) {
+                //Do what ever with the email.
+            } else {
+                FlageValidate = true;
+                if (emailArray[i] != "") {
+                    $("#spnsucessmesg").html(("@ViewBag.InvalidEmail: " + emailArray[i]));
+                    $("#divLoadingS").hide();
+                }
+                else {
+                    $("#spnsucessmesg").html(("@ViewBag.EmailIdcannotBlank"));
+                    $("#divLoadingS").hide();
+                }
+            }
+        }
+        //var email = document.getElementById("txtemail").value;
+        //if (!IsValidEmail(email)) {
+        //    alert("Invalid email address.");
+        //}
+        //else {
+        if (FlageValidate == false) {
+            ConvertPdf();
+        }
+        //}
+    }
+    function ConvertPdf() {
+        var FileName = $("#hdnlocatiname").val();
+        var EmailId = $("#txtemail").val();
+        var FacilityName = $("#hdnfacilityname").val();
+        var SiteName = $("#hdnsitename").val();
+        var LocatioName = $("#hdnlocatiname").val();
+        //subtitle = LocatioName
+        var Subject = FacilityName + ' : ' + SiteName + ' - ' + LocatioName + ' Report ';
+        var HTML = $("#ExportPdf").html();
+        var HighchartData = JSON.stringify({ 'HighchartData': HTML, 'FileName': FileName, 'EmailId': EmailId, 'Subject': Subject });
+        $.ajax({
+            url: "../EnergyLevel/GetExporttoPDf",
+            type: "POST",
+            contentType: "application/json; charset=utf-8",
+            dataType: "json",
+            data: HighchartData, // pass that text to the server as a correct JSON String
+            success: function (Status) {
+                if (Status == "Sucesses") {
+                    $("#divLoadingS").hide();
+                    //$("#spnsucessmesg").html(("" + FileName + " report sent to " + EmailId + ""));
+                    $("#spnsucessmesg").html(("" + FileName + " @ViewBag.Reportsentsuccessfully"));
+                    //$("#txtemail").val();
+                }
+                else {
+                    $("#spnsucessmesg").html(("Sorry server error"));
+                }
+            }
+
+        });
+    }
+    function SiteBuildingDetails() {
+        var FacilityID = getParameterByName('FacilityID');
+        var LocationID = getParameterByName('LocationID');
+        var url = '../EnergyLevel/GetSitebuildingDetails';
+        var data1 = { FacilityID: FacilityID, LocationID: LocationID };
+        var dsnew = "";
+        $.get(url, data1, function (data1) {
+
+            var JString = data1;
+            var strbutton = "";
+            var strbuttonWeather = "";
+            var LocationId = "";
+            dsnew = JSON.parse(JString);
+            if (dsnew.Table.length > 0 && dsnew.Table1.length > 0) {
+                strbutton = "<table>";
+                for (var k = 0; k <= dsnew.Table.length - 1; k++) {
+                    if (k == 0) {
+                        $("#hdndaily").val(dsnew.Table[k].LocationID);
+                        $("#hdnlocatiname").val('@ViewBag.DailyEnergyConsumption');
+                    }
+                    LocationId += dsnew.Table[k].LocationID;
+                    LocationId += ',';
+                    if (dsnew.Table.length - 1 == k) {
+
+                        strbutton += "<tr><td><input type='hidden' id='hdndlconsuption' value='Daily'/><input type='button' id='DailyColumn' class='btn btn-orng1 mt15 changecss'  value='@ViewBag.DailyEnergyConsumption'  onclick='SearchDailyDetails(this)' name='" + dsnew.Table[k].LocationID + "' /></td></tr>";
+                        strbuttonWeather += "<tr><td><input type='hidden' id='hdndlconsuption' value='Weather'/><input type='button' id='Weather' class='btn btn-orng1 mt15 changecss' value='@ViewBag.WeatherAdjustedEnergyConsumption'  onclick='SearchWetherAdjusted(this)' name='" + dsnew.Table[k].LocationID + "'  /></td></tr>";
+                        strbutton += "<tr><td><input type='button' id='MonthlyColumn'class='btn btn-orng1 mt15 changecss' value='@ViewBag.MonthlyEnergyConsumption'  onclick='SearchMonthlyDetails(this)' name='" + dsnew.Table[k].LocationID + "'/></td></tr>";
+                        strbutton += "<tr><td><input type='button' id='Monthlygas'class='btn btn-orng1 mt15 changecss' value='@ViewBag.MonthlyGasConsumption'  onclick='SearchMonthlyGas(this)' name='" + dsnew.Table[k].LocationID + "'/></td></tr>";
+                        strbutton += "<tr><td><input type='button' id='MonthlyTrend' class='btn btn-orng1 mt15 changecss' value='@ViewBag.MonthlyTrend'  onclick='SearchMonthlyDetails(this)' name='" + dsnew.Table[k].LocationID + "'/></td></tr>";
+                        strbutton += "<tr><td><input type='button' id='MonthlyExpenses' class='btn btn-orng1 mt15 changecss' value='@ViewBag.MonthlyEnergyExpenses'  onclick='SearchMonthlyExpense(this)' name='" + dsnew.Table[k].LocationID + "' /></td></tr>";
+                        strbutton += "<tr><td><input type='button' id='MonthlyPeekDemand' class='btn btn-orng1 mt15 changecss' value='@ViewBag.MonthlyPeekDemand'  onclick='SearchMonthlyPeekDemand(this)' name='" + dsnew.Table[k].LocationID + "' /></td></tr>";
+                        //strbutton += "<tr><td><input type='button' id='RedirctUrl' onclick='RedirectedUrlhome()' class='btn btn-orng1 mt15 changecss' value='@ViewBag.HomePage' /></td></tr>";
+
+                    }
+                }
+            }
+            else {
+               // strbutton += "<tr><td style='width:100%;'><input type='button' id='RedirctUrl' onclick='RedirectedUrlhome()' class='btn btn-orng1 mt15 changecss' value='@ViewBag.HomePage' /></td></tr>";
+                NoDatainHighChart();
+            }
+            $("#hdnLocationId").val(LocationId);
+            strbutton += "</table>";
+            strbuttonWeather += "</table>";
+            $("#tblWeather").html(strbuttonWeather);
+            $("#sitebuilding").html(strbutton);
+            $('.changecss').removeClass('active');
+            $("#DailyColumn").addClass('active');
+            SearchDatainasset('Daily');
+        });
+    }
+
+    function getParameterByName(name) {
+        var regexS = "[\\?&]" + name + "=([^&#]*)",
+      regex = new RegExp(regexS),
+      results = regex.exec(window.location.search);
+        if (results == null) {
+            return "";
+        } else {
+            return decodeURIComponent(results[1].replace(/\+/g, " "));
+        }
+    }
+    function SearchMonthlyDetails(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('Monthly');
+        SearchDatainasset('Energy');
+    }
+    function SearchMonthlyGas(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('MonthlyGas');
+        SearchDatainasset('Gas');
+    }
+    function SearchWetherAdjusted(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('Monthly');
+        FlagWether = true;
+        SearchDatainasset('Energy');
+    }
+    function SearchMonthlyExpense(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('Energy');
+        SearchDatainasset('Cost');
+    }
+    function SearchMonthlyPeekDemand(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('PeekDemand');
+        SearchDatainasset('MaxPeekDemand');
+    }
+    function SearchDailyDetails(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('Daily');
+        SearchDatainasset('Daily');
+    }
+    function SearchYearlyEngConsuption(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('EnergyYearly');
+        SearchDatainasset('YearlyEnergy');
+    }
+    function SearchYearlyEngCost(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('EnergyYearly');
+        SearchDatainasset('YearlyCost');
+    }
+    function SearchMonthlyEngIntensity(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('EnergyYearlyIntensity');
+        SearchDatainasset('monthlyIntensity');
+    }
+    function SearchYearlyEngIntensity(value) {
+        $("#tblFileUpload").css('display', 'none')
+        $('.changecss').removeClass('active');
+        $("#" + value.id).addClass('active');
+        var LocationName = value.value;
+        $("#hdnlocatiname").val(LocationName);
+        $("#hdndlconsuption").val('EnergyYearlyIntensity');
+        SearchDatainasset('YearlyIntensity');
+    }
+    function SearchDatainasset(value) {
+        $("#divSetting").hide();
+        $("#ExportPdf").show();
+        //$("#tblFileUpload").css('display', 'none')
+        if (FlagWether == true) {
+            $("#hdndlconsuption").val('Weather');
+        }
+        FlagWether = false;
+        var Monthnumber = value;
+        var LocationID = $("#hdnLocationId").val();
+        var LocatioName = $("#hdnlocatiname").val();
+        var BuilDID = value;
+        var DailyConsuption = $("#hdndlconsuption").val();
+        if (BuilDID == 'YearlyEnergy' || BuilDID == 'YearlyCost' || BuilDID == 'monthlyIntensity' || BuilDID == 'YearlyIntensity') {
+            Monthnumber = $("#hdndlconsuption").val();
+        }
+        var BuildinName = "";
+        if (FlagBuild == true && value != undefined) {
+            var ReportType = $("#hdndlconsuption").val();
+            BuildinName = ': ' + $("#hdnBuildinName").val();
+            var LocatioName = LocatioName;
+            Monthnumber = ReportType;
+            FlagBuild = false;
+            FlagWether = false;
+        }
+        else if (value == 'Daily') {
+            Monthnumber = "DailyColumn";
+            BuilDID = "";
+        }
+        else if (value == 'Cost') {
+            Monthnumber = $("#hdndlconsuption").val();
+        }
+        var UrlA = "";
+        if (value != undefined) {
+            UrlA = '../EnergyLevel/GetHighChart';
+        }
+        else {
+            return false;
+        }
+        $("#trspedometer").css("display", "");
+        $("#txtlegen").css("display", "");
+        var url = UrlA;
+        var data1 = { Monthnumber: Monthnumber, BuilDID: BuilDID, LocationID: LocationID };
+        var dsnew = "";
+        $.get(url, data1, function (data1) {
+            var JString = data1;
+            if (JString == "Fail") {
+                return false;
+            }
+            else {
+                dsnew = JSON.parse(JString);
+            }
+            if (dsnew.Table1.length > 0) {
+                $("#tblSpedometer").html("");
+                var OriginalAmount = [];
+                var ArrData1 = [];
+                var AssetNumberDName = [], AssetNamename = [], ReceivedDatenName = [], AssetName4 = [], AssetData4 = [];
+                var DateMonth = [];
+                var AssetIDD = [];
+                var AssetIDDName = [];
+                var NewSumAsseteName = "";
+                var AssetNumberD = [], AssetName = [], ReceivedDate = [], NewSumAssete = [];
+
+                if (Monthnumber != 'EnergyYearly' && Monthnumber != 'EnergyYearlyIntensity' && Monthnumber != 'PeekDemand') {
+                    if (dsnew.Table.length > 0) {
+                        $("#totalbuild").css("display", "block");
+                        $("#tblSpedometer").html("");
+                        var Spedometer = "";
+                        Spedometer = "<table><tr>";
+                        for (var a = 0; a < dsnew.Table1.length; a++) {
+                            {
+                                Spedometer += "<td id='Spedometer" + a + "'></td>";
+                            }
+                        }
+                        Spedometer += "</tr></table>";
+                        $("#tblSpedometer").html(Spedometer);
+                    }
+                }
+                else {
+                    $("#totalbuild").css("display", "none");
+                }
+
+                var AssetData = [];
+                var AssetName = "";
+                var SerisData = [];
+                var ArrayData = [];
+                var ArraDataconvert = [];
+                var DaysBill = "";
+                // if (BuilDID == 1) {
+                var tableonelenths = "";
+                var BuildingID = "";
+                SerisData += '[';
+                if (Monthnumber == "Energy") {
+                    tableonelenths = dsnew.Table1.length;
+                }
+                else {
+                    tableonelenths = dsnew.Table1.length;
+                }
+                if (tableonelenths > 0) {
+                    BuildingID = '<div>';
+                    for (var i = 0; i < tableonelenths; i++) {
+                        var ArrayDate = "";
+                        if (dsnew.Table1[i].AssetID != 0) {
+                            AssetData = [];
+                            for (var j = 0; j < dsnew.Table.length; j++) {
+                                if (dsnew.Table[j].AssetID == dsnew.Table1[i].AssetID) {
+                                    if (Monthnumber == "EnergyYearlyIntensity") {
+                                        $("#hdnPloatedLine").val(dsnew.Table[j].TargetLine);
+                                    }
+                                    if (Monthnumber == "Gas") {
+                                        DaysBill += '[' + [dsnew.Table[j].DaysBill] + ']';
+                                        DaysBill += ',';
+                                    }
+                                    else {
+                                        DaysBill = "3";
+                                    }
+                                    if (dsnew.Table[j].Day == '0') {
+                                        dsnew.Table[j].Day = '1';
+                                    }
+                                    if (Monthnumber != 'EnergyYearly' && dsnew.Table[j].DateMonth != '0') {
+                                        dsnew.Table[j].DateMonth = dsnew.Table[j].DateMonth - 1;
+                                    }
+                                    else {
+                                        dsnew.Table[j].DateMonth = dsnew.Table[j].DateMonth;
+                                    }
+                                    AssetName = (dsnew.Table1[i].AssetName);
+                                    if (Monthnumber== 'PeekDemand')
+                                    { var XDetails = Date.UTC(dsnew.Table[j].GetYear, (dsnew.Table[j].DateMonth)); }
+                                    else
+                                    {
+                                        var XDetails = Date.UTC(dsnew.Table[j].GetYear, (dsnew.Table[j].DateMonth), dsnew.Table[j].Day);
+                                    }
+                                    ArrayDate += '[' + [XDetails, dsnew.Table[j].Value] + ']';
+
+                                    //ArrayDate += '{y:'+dsnew.Table[j].Value+',players:'+['a','b']+'}';
+                                    ArrayDate += ',';
+                                }
+                                //AssetName.split(' ').join('');
+                            }
+                            //BuildingID += '<input type="hidden" value="' + dsnew.Table1[i].AssetID + '" id="' + AssetName.split(' ').join('') + '"/><input type="hidden" value="' + dsnew.Table1[i].AssetID + '" id="' + AssetName.split(' ').join('') + '"/>';
+                            BuildingID += '<input type="hidden" value="' + dsnew.Table1[i].AssetID + '" id="' + AssetName.split(' ').join('') + '"/>';
+                            //SerisData += '{name:"' + AssetName + '",data:[' + ArrayDate + '],tooltipText:[' + DaysBill + ']},';
+                            SerisData += '{name:"' + AssetName + '",data:[' + ArrayDate + ']},';
+                            if (Monthnumber == 'Monthly' || Monthnumber == 'Daily' || Monthnumber == 'Gas')
+                            {
+                                //var Type = '<input type="hidden" value="T" id="TypeAssetBuild"/>';
+                                $("#TypeAssetBuild").val('T');
+                            }
+                            else
+                            {
+                                $("#TypeAssetBuild").val('0');
+                            }
+
+                        }
+                    }
+                    BuildingID += '</div>';
+                }
+                $("#spanbuildid").html(BuildingID);
+
+                if (Monthnumber != 'Energy' && Monthnumber != 'EnergyYearly' && Monthnumber != 'EnergyYearlyIntensity'
+                    && Monthnumber != 'DailyColumn' && Monthnumber != 'Weather' && Monthnumber != 'PeekDemand' && Monthnumber != 'Gas' && Monthnumber != 'MaxPeekDemand') {
+                    var ArrayDateSum = "";
+                    if (dsnew.Table3.length > 0) {
+                        for (var k = 0; k < dsnew.Table3.length; k++) {
+                            if (dsnew.Table3[k].AssetID == 0) {
+                                if (dsnew.Table3[k].Day == '0') {
+                                    dsnew.Table3[k].Day = '1';
+                                }
+                                NewSumAsseteName = dsnew.Table3[k].AssetName;
+                                ArrayDateSum += '[' + [Date.UTC(dsnew.Table3[k].GetYear, (dsnew.Table3[k].DateMonth - 1), dsnew.Table3[k].Day), dsnew.Table3[k].value] + ']';
+                                ArrayDateSum += ',';
+                            }
+                        }
+                        SerisData += '{name:"' + NewSumAsseteName + '",data:[' + ArrayDateSum + ']},';
+                    }
+                }
+                SerisData += ']';
+                var SerisDataseri = eval(SerisData);
+                var Type = '';
+                var title = "";
+                var subtitle = "";
+                var YAxisTitle = "";
+                var FacilityName = $("#hdnfacilityname").val();
+                var SiteName = $("#hdnsitename").val();
+                subtitle = LocatioName
+                title = FacilityName + ' : ' + SiteName + BuildinName;
+                if (Monthnumber == 'Energy' || Monthnumber == 'Gas') {
+                    Type = 'column';
+                    // Type = 'scatter';
+                    SetDailyGraph = 24 * 3600 * 1000;
+                }
+                else if (Monthnumber == 'PeekDemand')
+                {
+                    Type = 'scatter';
+                    SetDailyGraph = 28 * 24 * 3600 * 1000;
+                    var XYAxies = { formatter: function () { return '<b>' + this.series.name + ':</b>' + this.y; } }
+                }
+                else if (Monthnumber == 'MaxPeekDemand') {
+                    Type = 'scatter';
+                    SetDailyGraph = 28 * 24 * 3600 * 1000;
+                    var XYAxies = { formatter: function () { return '<b>' + this.series.name + ':</b>' + this.y; } }
+                }
+                else if (Monthnumber == 'EnergyYearly') {
+                    Type = 'column';
+                    SetDailyGraph = 24 * 3600 * 1000;
+                }
+                else if (Monthnumber == 'EnergyYearlyIntensity') {
+                    Type = 'column';
+                    SetDailyGraph = 24 * 3600 * 1000;
+                }
+                else if (Monthnumber == 'DailyColumn' || Monthnumber == 'Weather') {
+                    Type = 'column';
+                    SetDailyGraph = 24 * 3600 * 1000;
+                }
+
+                else {
+                    Type = 'line';
+                    SetDailyGraph = 24 * 3600 * 1000;
+                }
+                if (subtitle == '@ViewBag.MonthlyTrend' && Monthnumber == 'Energy') {
+                    Type = 'line';
+                    SetDailyGraph = 24 * 3600 * 1000;
+                }
+                if (BuilDID == "Cost") {
+                    YAxisTitle = "USD( $ )";
+                }
+                else
+                    if (BuilDID == "YearlyCost") {
+                        YAxisTitle = "USD( $ )";
+                    }
+                    else
+                        if (Monthnumber == "EnergyYearlyIntensity") {
+                            YAxisTitle = "kwh/sq. ft.";
+                        }
+                        else if (DailyConsuption == 'Daily') {
+                            YAxisTitle = "kWh";
+                        }
+                        else if (Monthnumber == 'PeekDemand') {
+                            YAxisTitle = "kWh";
+                        }
+                        else if (Monthnumber == 'Gas'||Monthnumber=='MonthlyGas')
+                        {
+                            YAxisTitle = "therms";
+                            var XYAxies = { formatter: function () { return '<b>' + this.series.name + ':</b>' + this.y; } }
+                        }
+                        else {
+                            YAxisTitle = "kWh";
+                        }
+                if (Monthnumber != 'PeekDemand' && Monthnumber != 'MaxPeekDemand') {
+                    var SetDailyGraph = "";
+                    var XYAxies = {}
+                }
+                var widthset = '1200';
+                if (dsnew.Table2[0].Monthly == 'Daily') {
+                    SetDailyGraph = 24 * 3600 * 1000;
+                }
+                var PloatedLine = "";
+                var tgline = "";
+                if (Monthnumber == 'EnergyYearlyIntensity') {
+
+                    PloatedLine = $("#hdnPloatedLine").val();
+                    'br';
+
+                    tgline = 'Target Intensity';
+
+                }
+
+                $('#container').highcharts({
+                    chart: {
+                        type: Type,
+                        width: widthset,
+                    },
+                    navigator: {
+                        enabled: false
+                    },
+                    scrollbar: {
+                        enabled: true
+                    },
+                    title: {
+                        text: title,
+                        style: {
+                            color: '#333',
+                            fontWeight: 'bold',
+                            fontSize: '20px',
+                            fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+
+                        }
+                    },
+                    subtitle: {
+                        text: subtitle,
+                        //style: {
+                        //    fontSize: '18px'
+                        //}
+                        style: {
+                            color: '#333',
+                            fontWeight: 'bold',
+                            fontSize: '20px',
+                            fontFamily: 'Trebuchet MS, Verdana, sans-serif'
+
+                        }
+                    },
+                    tooltip:XYAxies,
+                        //{
+                           // XYAxies
+                    //formatter: function() {
+
+                    //    //if(this.series.name == 'Tokyo' && this.y == 26.5 ){
+                    //    //    return false ;
+                    //    //}else {
+                    //        return '<b>'+ this.series.name +'</b><br/>'+ this.x +': '+ this.y ;
+                    //   // }
+                    //}
+                    //},
+                    yAxis: {
+                        labels: {
+                            formatter: function () {
+                                return this.value;
+                            }
+                        },
+                        title: {
+                            text: YAxisTitle
+                        },
+                        x: -20,
+                        plotBands: [{
+                            from: PloatedLine,
+                            to: PloatedLine,
+                            color: "Black",
+
+                            label: {
+
+                                style: {
+
+                                    fontSize: '11px',
+                                    fontFamily: 'Trebuchet MS, Verdana, sans-serif',
+                                    align: 'right',
+                                    'text-anchor': 'end',
+                                },
+                                "text": tgline,
+                                y: 10
+
+                            }
+
+                        },
+
+                        ]
+                    },
+                    plotOptions: {
+                        column: {
+                            pointPadding: 0,
+                            borderWidth: 0
+                        },
+                        series: {
+                            events: {
+                                legendItemClick: function () {
+                                    FlagBuild = true;
+                                    var AssetID = $("#" + this.name).val();
+                                    var BuildId = $("#" + this.name.split(' ').join('')).val();
+                                    if (AssetID != undefined) {
+                                        //$('#upload').click(function () { // The $ is not necessary - you already have it AssetName.split(' ').join('')
+                                        //    $('#uploadme').click();
+                                        //});
+                                        if(($("#TypeAssetBuild").val())=='T')
+                                        {
+                                            $("#tblFileUpload").css('display', 'block')
+                                            $("#TypeAssetBuild").val('0');
+                                        }
+                                        else {
+                                            $("#pageId").val(BuildId);
+                                        }
+
+                                        //BuildId = "Test";
+                                        //$('input[type=file]').trigger('click');
+                                    }
+                                    else {
+                                        $("#tblFileUpload").css('display', 'none')
+                                        $("#pageId").val(BuildId);
+                                    }
+
+                                    $("#hdnBuildinName").val(this.name);
+                                    SearchDatainasset(BuildId)
+                                }
+                            }
+                        }
+                    },
+                    xAxis: {
+                        type: 'datetime',
+                        tickInterval: SetDailyGraph,
+                        dateTimeLabelFormats: {
+                            day: '%d-%m-%y'
+                        },
+
+                    },
+                    //tooltip: {
+                    //    formatter: function () {
+                    //        var s = '<b>' + this.x + '</b>';
+
+                    //        $.each(this.points, function () {
+                    //            s += '<br/>' + this.series.name + ': ' +
+                    //                this.series.tooltipText + 'm';
+                    //        });
+
+                    //        return s;
+                    //    },
+                    //    shared: true
+                    //},
+                    series: SerisDataseri,
+
+                    //tooltip: {
+                    //formatter: function() {
+                    //    return '<br />Country: ' + this.SerisDataseri.name;
+                    //}
+                //}
+
+                });
+                var series = [],
+                   j = 0;
+                if (Monthnumber != 'EnergyYearly' || Monthnumber != 'PeekDemand') {
+                    for (j = 0; j < dsnew.Table1.length; j++) {
+                        Spedometer += "<td id='Spedometer" + j + "'></td>";
+                        $('#Spedometer' + j).highcharts({
+                            chart: {
+                                type: 'gauge',
+                                plotBackgroundColor: null,
+                                plotBackgroundImage: null,
+                                plotBorderWidth: 0,
+                                plotShadow: false,
+                                backgroundColor: '',
+                                width: 200,
+                                height: 230
+                            },
+                            title: {
+
+                                text: dsnew.Table1[j].AssetName,
+                                style: {
+                                    color: 'black',
+                                    font: 'bold 20px "Trebuchet MS", Verdana, sans-serif'
+                                }
+                            },
+                            pane: {
+                                startAngle: -150,
+                                endAngle: 150,
+                                size: '100%',
+                                background: [{
+                                    backgroundColor: {
+                                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                                        stops: [
+                                            [0, '#FFF'],
+                                            [1, '#333']
+                                        ]
+                                    },
+                                    borderWidth: 0,
+                                    outerRadius: '109%'
+                                }, {
+                                    backgroundColor: {
+                                        linearGradient: { x1: 0, y1: 0, x2: 0, y2: 1 },
+                                        stops: [
+                                            [0, '#333'],
+                                            [1, '#FFF']
+                                        ]
+                                    },
+                                    borderWidth: 1,
+                                    outerRadius: '107%'
+                                }, {
+                                    // default background
+                                }, {
+                                    backgroundColor: '#d6d6c2',
+                                    borderWidth: 0,
+                                    outerRadius: '105%',
+                                    innerRadius: '110%'
+                                }]
+                            },
+                            yAxis: {
+                                min: 0,
+                                max: dsnew.Table2[0].MaxValue,
+                                minorTickInterval: 'auto',
+                                minorTickWidth: 1,
+                                minorTickLength: 10,
+                                minorTickPosition: 'inside',
+                                minorTickColor: '#1f1f7a',
+                                tickPixelInterval: 30,
+                                tickWidth: 2,
+                                tickPosition: 'inside',
+                                tickLength: 10,
+                                tickColor: 'blue',
+                                labels: {
+                                    step: 2,
+                                    rotation: 'auto'
+                                },
+                                title: {
+                                    text: YAxisTitle,
+                                    style: {
+                                        color: 'black'
+                                    }
+                                },
+                                plotBands: [{
+                                    //from: 0,
+                                    //to: 120,
+                                    //color: '#55BF3B' // green
+                                },
+                                {
+                                    from: 0,
+                                    to: 120,
+                                    innerRadius: 35,
+                                    outerRadius: 10,
+                                    shape: 'circle',
+                                    color: '#c2c2a3' //
+                                }
+                                , {
+                                    //from: 120,
+                                    //to: 160,
+                                    //color: '#DDDF0D' // yellow
+                                }, {
+                                    //from: 160,
+                                    //to: 200,
+                                    //color: '#DF5353' // red
+                                }]
+                            },
+
+                            series: [{
+                                name: 'Energy',
+                                data: [dsnew.Table1[j].value],
+                                tooltip: {
+                                    //valueSuffix: 'Value'
+                                }
+                            }]
+
+                        });
+                    }
+                }
+            }
+            else {
+                return false;
+            }
+        });
+    }
+    function NoDatainHighChart() {
+        $("#totalbuild").css("display", "none");
+        var LocatioName = $("#hdnlocatiname").val();
+        var FacilityName = $("#hdnfacilityname").val();
+        var SiteName = $("#hdnsitename").val();
+        var subtitle = LocatioName
+        var title = FacilityName + ' : ' + SiteName;
+        var SetDailyGraph = 24 * 3600 * 1000;
+        var widthset = '1500';
+
+        $('#container').highcharts({
+            chart: {
+                type: 'line',
+                width: widthset
+            },
+            navigator: {
+                enabled: false
+            },
+            scrollbar: {
+                enabled: true
+            },
+            title: {
+                text: title,
+            },
+            subtitle: {
+                text: subtitle
+            },
+
+            //subtitle: {
+            //    x: -20
+            //},
+            yAxis: {
+                labels: {
+                    formatter: function () {
+                        return this.value;
+                    }
+                },
+                title: {
+                    text: ''
+                },
+                //
+                x: -20
+
+
+            },
+            //plotOptions: {
+            //    column: {
+            //        pointPadding: 0,
+            //        borderWidth: 0
+            //    }
+
+            //},
+            plotOptions: {
+                column: {
+                    pointPadding: 0,
+                    borderWidth: 0
+                },
+            },
+            xAxis: {
+                type: 'datetime',
+                tickInterval: SetDailyGraph,
+                dateTimeLabelFormats: {
+
+                },
+
+            },
+
+            series: []
+        },
+                function (chart) { // on complete
+
+                    chart.renderer.text('No Data Available', 620, 220)
+                        .css({
+                            color: '#4572A7',
+                            fontSize: '30px'
+                        })
+                        .add();
+
+                });
+    }
+    function UploadExcelFile() {
+        $("#upload").click()
+    }
+</script>
+

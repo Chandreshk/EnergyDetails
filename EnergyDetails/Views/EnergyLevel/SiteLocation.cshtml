@@ -1,0 +1,128 @@
+﻿
+@{
+    <title>Proteus Energy Analytics</title>
+    <link rel="icon" href="~/Content/image/proteus.png" type="image/png" />
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Geolocation API with Google Maps API</title>
+    <meta charset="UTF-8" />
+    <script src="~/Content/js/jquery-v1.6.1.js" type="text/javascript"></script>
+    <script src="~/Content/js/jquery-1.12.4.js"></script>
+    <script type="text/javascript" src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOKtZOo1UZ2VYHj6BrprF6KHWsT0-Sne8"></script>
+    @*<script src="~/Content/js/googleapis.js"></script>*@
+</head>
+<body>
+        <div id="dvMap" style="height: 100%;margin-left:16%;text-align: right;width: 72%;position:absolute;overflow: hidden;"></div>
+    <script>
+
+        var markers = @Html.Raw(ViewBag.Markers);
+        if(markers=="NoData")
+        {
+            alert('This facilities have no site available')
+            var url = "../EnergyLevel/GoogleMap";
+            window.location.href = url;
+        }
+            window.onload = function () {
+            //var mapOptions = {
+            //        center: new google.maps.LatLng(markers[0].lat, markers[0].lng),
+            //        zoom: 10,
+            //        mapTypeId: google.maps.MapTypeId.ROADMAP
+                //    };
+
+                var mapOptions = {
+                    center: new google.maps.LatLng(markers[0].lat, markers[0].lng),
+                    zoom:10,
+                    zoomControl: true,
+                    zoomControlOptions: {
+                        style: google.maps.ZoomControlStyle.DEFAULT,
+                    },
+                    disableDoubleClickZoom: true,
+                    mapTypeControl: false,
+                    scaleControl: true,
+                    scrollwheel: true,
+                    panControl: true,
+                    streetViewControl: true,
+                    draggable: true,
+                    overviewMapControl: true,
+                    overviewMapControlOptions: {
+                        opened: false,
+                    },
+                    mapTypeId: google.maps.MapTypeId.ROADMAP,
+                    styles: [
+                        {
+                            "featureType": "administrative",
+                            "elementType": "labels",
+                            "stylers": [
+                                {
+                                    "visibility": "off"
+                                }
+                            ]
+                        },
+                        ],
+                    }
+                var infoWindow = new google.maps.InfoWindow();
+                var map = new google.maps.Map(document.getElementById("dvMap"), mapOptions);
+                //for (i = 0; i < markers.length; i++) {
+                //    var data = markers[i]
+                //    var myLatlng = new google.maps.LatLng(data.lat, data.lng);
+                //    var marker = new google.maps.Marker({
+                //        position: myLatlng,
+                //        map: map,
+                var icon = "";
+                for (i = 0; i < markers.length; i++) {
+                    if(markers[i].SiteData=='1')
+                    {
+                        icon="green";
+                        var image = {
+                            url:"http://maps.google.com/mapfiles/ms/icons/" + icon + ".png",
+                            scaledSize: new google.maps.Size(50, 50), // scaled size
+                            origin: new google.maps.Point(0,0), // origin
+                            anchor: new google.maps.Point(0, 0) // anchor
+                        };
+                    }
+                    else
+                    {icon="red";
+                        var image = {
+                            url:"http://maps.google.com/mapfiles/ms/icons/" + icon + ".png",
+                        };
+                    }
+                    var data = markers[i]
+                    var myLatlng = new google.maps.LatLng(data.lat, data.lng);
+                    var marker = new google.maps.Marker({
+                        position: myLatlng,
+                        map: map,
+                        icon: image,
+                        label: {
+                            text:data.title,
+                            fontSize: "10px",
+                            color: 'Black',
+                            font: 'bold 50px',
+                            size:'5px',
+
+                        },
+                        title: data.title
+                    });
+                    (function (marker, data) {
+                        google.maps.event.addListener(marker, "click", function (e) {
+                            GetSiteDetails(data.title,data.LocationID);
+                            //var html = "<div><h3>" + data.title + "</h3><p>" + data.title + "<br></div><a href='" + data.LocationID + "'>View location</a></p></div>";
+                            //iw = new google.maps.InfoWindow({
+                            //    content: html,
+                            //    maxWidth: 350
+                            //});
+                            //iw.open(map, marker);
+                        });
+                    })(marker, data);
+                }
+            }
+            function GetSiteDetails(name,facilityID)
+            {
+                var url = "../EnergyLevel/HighChart" +facilityID;
+                window.location.href = url;
+            }
+    </script>
+</body>
+</html>
